@@ -7,6 +7,6 @@ namespace API.DTOs.Model{
         public string Name { get; set; }
         public string DoctorId { get; set; }
         public int Age { get; set; }
-         public ICollection<Patient> Patients { get; set; } =  new List<Patient>();
+        public ICollection<Patient> Patients { get; set; } =  new List<Patient>();
     }
 }
