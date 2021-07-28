@@ -31,6 +31,7 @@ namespace API.Controllers
         [HttpGet("get-notes/{id}")]
         public async Task<ActionResult<IEnumerable<PatientNote>>> GetPatientDetails(Guid id)
         {
+           
             var doctor = await this._userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
             if (doctor == null)
             {
@@ -45,7 +46,7 @@ namespace API.Controllers
         }
 
         [HttpPost("add-note/{id}")]
-        public async Task<ActionResult<string>> AddNote(PatientNoteDTO note, Guid id)
+        public async Task<ActionResult<IEnumerable<PatientNote>>> AddNote(PatientNoteDTO note, Guid id)
         {
             var doctor = await this._userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
             if (doctor == null)
@@ -69,7 +70,7 @@ namespace API.Controllers
             patient.Notes.Add(newNote);
             await _context.SaveChangesAsync();
 
-            return "Note added";
+            return patient.Notes.ToList();
         }
 
         [HttpPut("update-note/{id}")]
@@ -94,7 +95,7 @@ namespace API.Controllers
 
             await _context.SaveChangesAsync();
 
-            return "Note updated";
+            return Ok();
         }
 
         [HttpGet("activity")]

@@ -48,6 +48,7 @@ namespace Doctor
                 options.UseSqlite(_config.GetConnectionString("DefaultConnection"));
 
             });
+            services.AddCors(options => {options.AddPolicy("Policy1", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());});
              services.AddControllers(opt=>{
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 opt.Filters.Add(new AuthorizeFilter(policy));
@@ -88,6 +89,8 @@ namespace Doctor
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("Policy1");
 
             app.UseAuthentication();
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using API.DTOs;
 using API.DTOs.Model;
@@ -37,6 +38,7 @@ namespace API.Controllers
                 return Unauthorized();
             }
             var patients = await this._context.Doctors.Include(x=> x.Patients).FirstOrDefaultAsync(x=> x.Id==doctor.Id);
+            
             return patients.Patients.ToList();
         }
 
@@ -48,10 +50,10 @@ namespace API.Controllers
             {
                 return Unauthorized();
             }
-            var pa = await this._context.Patients.FirstOrDefaultAsync(x => x.Phone == patient.Phone && x.DoctorId== doctor.DoctorId);
+            var pa = await this._context.Patients.FirstOrDefaultAsync(x => x.Phone == patient.Phone && x.DoctorId== doctor.Id);
             if (pa != null)
             {
-                if (patient.Name == pa.Name || patient.Dob == pa.Dob)
+                if ((patient.Name == pa.Name && patient.Phone == pa.Phone) || patient.Dob == pa.Dob)
                 {
                     return BadRequest("Patient with same Name, Phone and Dob exist");
                 }
