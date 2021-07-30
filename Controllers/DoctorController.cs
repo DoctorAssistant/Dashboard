@@ -38,6 +38,7 @@ namespace API.Controllers
                 return Unauthorized();
             }
             var patient = await this._context.Patients.Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == id);
+           
             if (patient == null)
             {
                 return BadRequest("No such patient...");
@@ -60,7 +61,7 @@ namespace API.Controllers
             }
             var newNote = new PatientNote
             {
-                DoctorId = doctor.Id,
+                Patient = patient,
                 Symptoms = note.Symptoms,
                 Date = DateTime.Now,
                 Notes = note.Notes,
@@ -106,7 +107,7 @@ namespace API.Controllers
                 return Unauthorized();
             }
             var dateParams = DateTime.Parse(this._httpContextAccessor.HttpContext.Request.Query["date"]);
-            var patients = await this._context.Patients.Include(x => x.Notes).Where(x=> x.DoctorId == doctor.Id && x.LastVisited.Day == dateParams.Day).ToListAsync();
+            var patients = await this._context.Patients.Include(x => x.Notes).Where(x=> x.Doctor.DoctorId == doctor.Id && x.LastVisited.Day == dateParams.Day).ToListAsync();
             if (patients == null)
             {
                 return BadRequest("No patients...");
@@ -121,7 +122,7 @@ namespace API.Controllers
             {
                 return Unauthorized();
             }
-            var patients = await this._context.Patients.Include(x => x.Notes).Where(x=> x.DoctorId == doctor.Id).ToListAsync();
+            var patients = await this._context.Patients.Include(x => x.Notes).Where(x=> x.Doctor.DoctorId == doctor.Id).ToListAsync();
             if (patients == null)
             {
                 return BadRequest("No patients...");

@@ -16,8 +16,8 @@ namespace API{
 
         protected override void OnModelCreating(ModelBuilder builder){
             base.OnModelCreating(builder);
-            builder.Entity<API.DTOs.Model.Doctor>().HasMany(x=> x.Patients);
-            builder.Entity<Patient>().HasMany(x=> x.Notes);
+            builder.Entity<API.DTOs.Model.Doctor>().HasMany(x=> x.Patients).WithOne(x=> x.Doctor);
+            builder.Entity<Patient>().HasMany(x=> x.Notes).WithOne(x=> x.Patient);
         }
         
     }
