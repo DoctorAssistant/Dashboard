@@ -30,7 +30,7 @@ namespace API.Controllers
         }
 
         [HttpGet("patients")]
-        public async Task<ActionResult<List<Patient>>> GetAllPatient()
+        public async Task<ActionResult<IEnumerable<Patient>>> GetAllPatient()
         {
             var doctor = await this._userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
             if (doctor == null)
@@ -38,23 +38,8 @@ namespace API.Controllers
                 return Unauthorized();
             }
             var patients = await this._context.Doctors.Include(x=> x.Patients).FirstOrDefaultAsync(x=> x.Id==doctor.Id);
-            // var patients = this._context.Doctors.Join(this._context.Patients, doctor=> doctor.Id, patients=> patients.DoctorId,
-            //     (doctor, patients)=> new Patient {
-            //         Id = patients.Id,
-            //         Name = patients.Name,
-            //         LastVisited = patients.LastVisited,
-            //         Age  = patients.Age,
-            //         Address = patients.Address,
-            //         Sex = patients.Sex,
-            //         Phone = patients.Phone,
-            //         DoctorId = patients.DoctorId,
-            //         Dob = patients.Dob
-            //     }
-            // ).ToList();
-
-            //var patients = from p in this._context.Set<Patient>() join d in this._context.Set<Notes
             
-            return null;
+            return patients.Patients.ToList();
         }
 
         [HttpPost("add-patient")]
@@ -65,7 +50,7 @@ namespace API.Controllers
             {
                 return Unauthorized();
             }
-            var pa = await this._context.Patients.FirstOrDefaultAsync(x => x.Phone == patient.Phone && x.Doctor.DoctorId== doctor.Id);
+            var pa = await this._context.Patients.FirstOrDefaultAsync(x => x.Phone == patient.Phone && x.DoctorId== doctor.Id);
             if (pa != null)
             {
                 if ((patient.Name == pa.Name && patient.Phone == pa.Phone) || patient.Dob == pa.Dob)
@@ -81,7 +66,7 @@ namespace API.Controllers
                 Sex = patient.Sex,
                 Address = patient.Address,
                 Phone = patient.Phone,
-                Doctor = doctor,
+                DoctorId = doctor.DoctorId,
                 LastVisited = DateTime.Now
             };
             await this._context.Patients.AddAsync(newPatient);
@@ -98,7 +83,7 @@ namespace API.Controllers
             {
                 return Unauthorized();
             }
-            var patient = this._context.Patients.FromSqlRaw("SELECT * FROM Patients WHERE id = {0}", id).FirstOrDefault();
+            var patient = await this._context.Patients.FirstOrDefaultAsync(x => x.Id == id);
             if (patient == null)
             {
                 return BadRequest("No such patient exist, add patient...");
@@ -139,7 +124,7 @@ namespace API.Controllers
             pa.Sex = patient.Sex ?? pa.Sex;
             pa.Address = patient.Address ?? pa.Address;
             pa.Phone = patient.Phone ?? pa.Phone;
-            //pa.DoctorId = patient.DoctorId ?? pa.DoctorId;
+            pa.DoctorId = patient.DoctorId ?? pa.DoctorId;
             pa.LastVisited = DateTime.Now;
 
             await _context.SaveChangesAsync();
